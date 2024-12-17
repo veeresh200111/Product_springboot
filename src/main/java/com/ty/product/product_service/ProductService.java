@@ -46,7 +46,7 @@ public class ProductService {
 			Map<String, Object>map = new HashMap<String, Object>();
 			map.put("message", "Products Found");
 			map.put("data", list);
-		return new ResponseEntity<Object>(map,HttpStatus.FOUND);
+		return new ResponseEntity<Object>(map,HttpStatus.OK);
 		}
 	}
 
@@ -60,9 +60,74 @@ public class ProductService {
 			Map<String, Object>map = new HashMap<String, Object>();
 			map.put("message", "Products Found");
 			map.put("data", optional.get());
-		return new ResponseEntity<Object>(map,HttpStatus.FOUND);
+		return new ResponseEntity<Object>(map,HttpStatus.OK);
 			
 		}
 	}
 
+	public ResponseEntity<Object> featchByName(String name) {
+		
+		List<Product> list= repository.findByName(name);
+		if(list.isEmpty()) {
+			Map<String,Object> map = new HashMap<String, Object>();
+			map.put("error", "No Products Found with name: "+name);
+			return new ResponseEntity<Object>(map,HttpStatus.NOT_FOUND);
+		}else {
+			Map<String, Object>map = new HashMap<String, Object>();
+			map.put("message", "Products Found");
+			map.put("data", list);
+		return new ResponseEntity<Object>(map,HttpStatus.OK);
+	}
+	
+	}
+
+	public ResponseEntity<Object> deleteById(int id) {
+		Optional<Product> optional= repository.findById(id);
+		if(optional.isEmpty()) {
+			Map<String,Object> map = new HashMap<String, Object>();
+			map.put("error", "No Products Found");
+			return new ResponseEntity<Object>(map,HttpStatus.NOT_FOUND);
+		}else {
+			repository.deleteById(id);
+			Map<String, Object>map = new HashMap<String, Object>();
+			map.put("message", "Product Deleted Success");
+		return new ResponseEntity<Object>(map,HttpStatus.OK);
+			
+		}
+	}
+
+	public ResponseEntity<Object> updateProduct(Product product) {
+		repository.save(product);
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("message", "Product Updated success");
+		map.put("data",product);
+		return new ResponseEntity<Object>(map,HttpStatus.CREATED);
+	}
+
+	public ResponseEntity<Object> update(Product product, int id) {
+		Optional<Product> optional = repository.findById(id);
+		if(optional.isEmpty()) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("error", "No Product Found with Id: "+id);
+			return new ResponseEntity<Object>(map, HttpStatus.NOT_FOUND);
+		}else {
+			Map<String, Object> map = new HashMap<String, Object>();
+			
+			Product existingProduct = optional.get();
+			if(product.getName()!=null)
+				existingProduct.setName(product.getName());
+			if(product.getDiscription()!=null)
+				existingProduct.setDiscription(product.getDiscription());
+			if(product.getPrice()!=0)
+				existingProduct.setPrice(product.getPrice());
+			if(product.getStock()!=0)
+				existingProduct.setStock(product.getStock());
+			
+			repository.save(existingProduct);
+			
+			
+			map.put("message", "Product Updated Success");
+			return new ResponseEntity<Object>(map, HttpStatus.OK);
+		}
+	}
 }
